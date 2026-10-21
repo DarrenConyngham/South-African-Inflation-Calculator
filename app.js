@@ -65,16 +65,16 @@ function showResult(amount, startMonth, endMonth, result) {
 
   resultSection.innerHTML = `
     <p class="summary">
-      ${currency.format(amount)} in ${formatMonth(startMonth)} is worth
+      ${currency.format(amount)} in ${formatMonth(startMonth)} had the same buying power as
     </p>
     <p class="end-amount">${currency.format(result.endAmount)}</p>
     <p class="summary">in ${formatMonth(endMonth)}</p>
     <ul class="details">
-      <li>Total change in prices: <strong>${percent.format(result.totalChange)}</strong></li>
+      <li>Average price change: <strong>${percent.format(result.totalChange)}</strong></li>
       ${annualText}
     </ul>
     <figure class="chart">
-      <figcaption>Value of ${currency.format(amount)} from ${formatMonth(startMonth)} over time</figcaption>
+      <figcaption>Amount with the same buying power as ${currency.format(amount)} in ${formatMonth(startMonth)}</figcaption>
       <div class="chart-area"></div>
     </figure>`;
 }
@@ -183,7 +183,7 @@ function chartSvg(points, layout) {
 
   return `
     <svg width="${width}" height="${CHART_HEIGHT}" viewBox="0 0 ${width} ${CHART_HEIGHT}" role="img"
-         aria-label="Line chart of the value from ${formatMonth(points[0].month)} to ${formatMonth(points[points.length - 1].month)}">
+         aria-label="Line chart of the cost from ${formatMonth(points[0].month)} to ${formatMonth(points[points.length - 1].month)}">
       ${yAxis.join("")}
       ${xAxis.join("")}
       <path class="line" d="${linePath}"/>
@@ -316,6 +316,8 @@ function setUpForm(data) {
   for (const picker of pickers) disableMissingMonths(picker, data.series);
 
   dataInfo.innerHTML = `
+    Results use the average change in prices across a basket of consumer goods
+    and services. Prices of individual items will have changed by more or less.
     Data up to <strong>${formatMonth(data.last_month)}</strong>.
     Source: <a href="https://www.statssa.gov.za/?page_id=1854&PPN=P0141">Stats SA</a>
     headline CPI (all urban areas), with recent months via the
