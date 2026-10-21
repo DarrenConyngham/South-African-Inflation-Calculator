@@ -5,6 +5,13 @@
   --muted: #5b655f;
   --accent: #00704a;
   --border: #d8ddd9;
+  --chevron: #5b655f;
+
+  /* South African flag colours. */
+  --flag-green: #007749;
+  --flag-gold: #ffb81c;
+  --flag-red: #e03c31;
+  --flag-blue: #001489;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +22,7 @@
     --muted: #a3ada7;
     --accent: #4cc38a;
     --border: #333b37;
+    --chevron: #a3ada7;
   }
 }
 
@@ -29,15 +37,45 @@ body {
   font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Thin stripe of flag colours across the top of the page. */
+body::before {
+  content: "";
+  display: block;
+  height: 6px;
+  background: linear-gradient(
+    to right,
+    var(--flag-red) 0 25%,
+    var(--flag-gold) 25% 50%,
+    var(--flag-green) 50% 75%,
+    var(--flag-blue) 75% 100%
+  );
+}
+
 main {
   max-width: 34rem;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.25rem;
+}
+
+.flag {
+  flex: none;
+  width: 3rem;
+  height: 2rem;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
 h1 {
   font-size: 1.6rem;
-  margin: 0 0 0.25rem;
+  line-height: 1.2;
+  margin: 0;
 }
 
 .intro {
@@ -45,13 +83,26 @@ h1 {
   margin: 0 0 1.5rem;
 }
 
+/* Amount on its own row, then "From" and "To" side by side. */
 form {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1.25rem;
+}
+
+.amount {
+  grid-column: 1 / -1;
+}
+
+/* Stack "From" and "To" on narrow screens. */
+@media (max-width: 36rem) {
+  form {
+    grid-template-columns: 1fr;
+  }
 }
 
 label {
@@ -60,24 +111,62 @@ label {
   font-weight: 600;
 }
 
-input {
+.month-picker {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+legend {
+  padding: 0;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+input,
+select {
   font: inherit;
   padding: 0.6rem 0.7rem;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text);
   width: 100%;
 }
 
-input:focus {
+/* Replace the browser's dropdown arrow with a chevron that matches the theme. */
+select {
+  appearance: none;
+  padding-right: 2rem;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--chevron) 50%),
+    linear-gradient(135deg, var(--chevron) 50%, transparent 50%);
+  background-position:
+    right 1rem center,
+    right 0.7rem center;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+}
+
+input:focus,
+select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 
 #result {
   margin: 1.5rem 0;
+  padding: 1.25rem;
   text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--flag-gold);
+  border-radius: 10px;
 }
 
 .summary {
@@ -97,6 +186,77 @@ input:focus {
   list-style: none;
   padding: 0;
   margin: 1rem 0 0;
+}
+
+/* Time series chart of the value between the chosen months. */
+.chart {
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.chart figcaption {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.chart-area {
+  position: relative;
+}
+
+.chart svg {
+  display: block;
+  touch-action: pan-y; /* Allow scrolling while dragging across the chart on touch screens. */
+}
+
+.chart .grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.chart .axis-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart .line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.chart .crosshair {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.chart .hover-dot {
+  fill: var(--accent);
+  stroke: var(--card);
+  stroke-width: 2;
+}
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  display: grid;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+}
+
+.chart-tooltip[hidden] {
+  display: none;
 }
 
 .message,

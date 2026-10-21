@@ -9,22 +9,38 @@
 </head>
 <body>
   <main>
-    <h1>South African Inflation Calculator</h1>
+    <header class="page-header">
+      <!-- Flag of South Africa, drawn on a 9 × 6 grid. -->
+      <svg class="flag" viewBox="0 0 9 6" role="img" aria-label="Flag of South Africa">
+        <clipPath id="flag-triangle"><path d="M0,0 4.5,3 0,6"/></clipPath>
+        <clipPath id="flag-edge"><path d="M0,0V6H9V0z"/></clipPath>
+        <path fill="#E03C31" d="M0,0H9V3H0z"/>
+        <path fill="#001489" d="M0,3H9V6H0z"/>
+        <g clip-path="url(#flag-edge)" fill="none">
+          <path stroke="#FFF" stroke-width="2" d="M0,0 4.5,3 0,6M4.5,3H9"/>
+          <path fill="#000" stroke="#FFB81C" stroke-width="2.4" clip-path="url(#flag-triangle)" d="M0,0 4.5,3 0,6"/>
+          <path stroke="#007749" stroke-width="1.2" d="M0,0 4.5,3 0,6M4.5,3H9"/>
+        </g>
+      </svg>
+      <h1>South African Inflation Calculator</h1>
+    </header>
     <p class="intro">See what a rand amount from one month is worth in another, using Stats SA headline CPI.</p>
 
     <form id="calculator" novalidate>
-      <label>
+      <label class="amount">
         Amount (R)
         <input id="amount" type="number" min="0" step="0.01" value="100" inputmode="decimal" required>
       </label>
-      <label>
-        Start month
-        <input id="start-month" type="month" required>
-      </label>
-      <label>
-        End month
-        <input id="end-month" type="month" required>
-      </label>
+      <fieldset class="month-picker">
+        <legend>From</legend>
+        <select id="start-month" aria-label="Start month"></select>
+        <select id="start-year" aria-label="Start year"></select>
+      </fieldset>
+      <fieldset class="month-picker">
+        <legend>To</legend>
+        <select id="end-month" aria-label="End month"></select>
+        <select id="end-year" aria-label="End year"></select>
+      </fieldset>
     </form>
 
     <section id="result" aria-live="polite">
