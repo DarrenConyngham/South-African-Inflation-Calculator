@@ -2,6 +2,8 @@
 
 A static web page that adjusts a rand amount for inflation between two months, using official Stats SA headline CPI (all urban areas).
 
+**Live site:** https://darrenconyngham.github.io/South-African-Inflation-Calculator/
+
 ```
 end amount = start amount × CPI[end month] / CPI[start month]
 ```
