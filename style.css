@@ -274,3 +274,8 @@ footer {
 footer a {
   color: var(--accent);
 }
+
+.credit {
+  margin-top: 1rem;
+  text-align: center;
+}
