@@ -1,22 +1,19 @@
 """Update data/cpi.json with South African headline CPI (Stats SA).
 
-Stats SA's own website blocks automated downloads, so this script uses two
-free, keyless sources that republish the official Stats SA series:
-
-* OECD SDMX API: monthly CPI index from 1960, but published with a lag.
-* SARB web API: the latest 25 months of the Stats SA headline index, up to date.
+Stats SA's own website blocks automated downloads, so the latest months come
+from the SARB web API, which republishes the Stats SA headline index (latest
+25 months, free, no key). The history before that was imported once from Stats
+SA's CPI history PDF by scripts/import_statssa_history.py.
 
 The SARB series is chain-linked onto the stored history at the earliest month
 that both series share, so the official SARB figures cover as many months as
-possible. Only index ratios matter for inflation, so the base
-year of each source does not matter. Months already stored are kept, so the
-history keeps growing even though SARB only returns 25 months.
+possible. Only index ratios matter for inflation, so a future change of base
+year does not matter. Months already stored are kept, so the history keeps
+growing even though SARB only returns 25 months.
 
 Usage: python3 scripts/update_cpi.py
 """
 
-import csv
-import io
 import json
 import urllib.request
 from datetime import date
@@ -27,11 +24,6 @@ DATA_FILE = Path(__file__).resolve().parent.parent / "data" / "cpi.json"
 SARB_URL = (
     "https://custom.resbank.co.za/SarbWebApi/WebIndicators/Shared/"
     "GetTimeseriesObservations/CPI1000A"
-)
-OECD_URL = (
-    "https://sdmx.oecd.org/public/rest/data/"
-    "OECD.SDD.TPS,DSD_PRICES@DF_PRICES_ALL,1.0/ZAF.M.N.CPI.IX._T.N._Z"
-    "?startPeriod=1960-01&format=csv"
 )
 
 # Sanity limit: a month-on-month move larger than this suggests bad data.
@@ -52,18 +44,8 @@ def parse_sarb(json_text):
     return {obs["Period"][:7]: float(obs["Value"]) for obs in observations}
 
 
-def parse_oecd(csv_text):
-    """Turn the OECD CSV response into {"YYYY-MM": index}."""
-    reader = csv.DictReader(io.StringIO(csv_text))
-    return {row["TIME_PERIOD"]: float(row["OBS_VALUE"]) for row in reader if row["OBS_VALUE"]}
-
-
 def fetch_sarb_cpi():
     return parse_sarb(fetch_text(SARB_URL))
-
-
-def fetch_oecd_cpi():
-    return parse_oecd(fetch_text(OECD_URL))
 
 
 def chain_link(base_series, newer_series):
@@ -111,9 +93,11 @@ def validate(series):
 
 
 def load_existing():
-    """Return the stored series, or an empty dict if there is no data file yet."""
+    """Return the stored series."""
     if not DATA_FILE.exists():
-        return {}
+        raise SystemExit(
+            f"{DATA_FILE} not found. Build it first with scripts/import_statssa_history.py."
+        )
     return json.loads(DATA_FILE.read_text())["series"]
 
 
@@ -122,7 +106,7 @@ def save(series):
     months = sorted(series)
     payload = {
         "description": "South African headline CPI index (all urban areas), chain-linked",
-        "source": "Stats SA, via the OECD (history) and the SARB web API (latest months)",
+        "source": "Stats SA: CPI history PDF (history) and the SARB web API (latest months)",
         "updated": date.today().isoformat(),
         "first_month": months[0],
         "last_month": months[-1],
@@ -132,14 +116,9 @@ def save(series):
     DATA_FILE.write_text(json.dumps(payload, indent=1) + "\n")
 
 
-def build_series(existing, fetch_oecd=fetch_oecd_cpi, fetch_sarb=fetch_sarb_cpi):
-    """Extend the stored series with the latest SARB data.
-
-    OECD data is only used to seed the history on the first run. After that,
-    the stored series already holds the history, and SARB keeps it current.
-    """
-    series = dict(existing) if existing else fetch_oecd()
-    return chain_link(series, fetch_sarb())
+def build_series(existing, fetch_sarb=fetch_sarb_cpi):
+    """Extend the stored series with the latest SARB data."""
+    return chain_link(existing, fetch_sarb())
 
 
 def main():

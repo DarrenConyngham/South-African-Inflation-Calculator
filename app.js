@@ -99,9 +99,9 @@ function setUpForm(data) {
 
   dataInfo.innerHTML = `
     Data up to <strong>${formatMonth(data.last_month)}</strong>.
-    Source: Stats SA headline CPI (all urban areas), via the
-    <a href="https://www.resbank.co.za/">SARB</a> (recent months) and the
-    <a href="https://data-explorer.oecd.org/">OECD</a> (history).`;
+    Source: <a href="https://www.statssa.gov.za/?page_id=1854&PPN=P0141">Stats SA</a>
+    headline CPI (all urban areas), with recent months via the
+    <a href="https://www.resbank.co.za/">SARB</a>.`;
 
   document.getElementById("calculator").addEventListener("input", () => update(data));
   update(data);

@@ -14,10 +14,6 @@ class ParseTests(unittest.TestCase):
         text = '[{"Period":"2026-09-30T00:00:00","Value":108.1},{"Period":"2026-08-31T00:00:00","Value":107.9}]'
         self.assertEqual(update_cpi.parse_sarb(text), {"2026-09": 108.1, "2026-08": 107.9})
 
-    def test_parse_oecd_skips_blank_values(self):
-        text = "REF_AREA,TIME_PERIOD,OBS_VALUE\nZAF,2025-01,157.68\nZAF,2025-02,\n"
-        self.assertEqual(update_cpi.parse_oecd(text), {"2025-01": 157.68})
-
 
 class ChainLinkTests(unittest.TestCase):
     def test_rescales_newer_series_from_earliest_shared_month(self):
@@ -52,21 +48,9 @@ class ValidateTests(unittest.TestCase):
 
 
 class BuildSeriesTests(unittest.TestCase):
-    def test_seeds_from_oecd_when_no_history(self):
-        series = update_cpi.build_series(
-            {},
-            fetch_oecd=lambda: {"2024-01": 100.0, "2024-02": 101.0},
-            fetch_sarb=lambda: {"2024-02": 50.5, "2024-03": 51.0},
-        )
-        self.assertAlmostEqual(series["2024-03"], 102.0)
-
-    def test_keeps_history_and_ignores_oecd_when_history_exists(self):
-        def fail():
-            raise AssertionError("OECD should not be fetched")
-
+    def test_keeps_history_and_links_sarb(self):
         series = update_cpi.build_series(
             {"2023-12": 99.0, "2024-01": 100.0},
-            fetch_oecd=fail,
             fetch_sarb=lambda: {"2024-01": 10.0, "2024-02": 10.1},
         )
         self.assertEqual(series["2023-12"], 99.0)
