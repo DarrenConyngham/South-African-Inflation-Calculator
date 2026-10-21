@@ -1,0 +1,1 @@
+Focus on keeping code simple and readable. Avoid unnecessary complexity and ensure that your code is well-documented. Use meaningful variable names and follow consistent naming conventions. Break down large functions into smaller, manageable pieces to enhance clarity. Prioritize maintainability and scalability in your code design.

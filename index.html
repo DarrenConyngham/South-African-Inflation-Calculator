@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SA Inflation Calculator</title>
+  <meta name="description" content="Adjust a rand amount for South African inflation using official Stats SA headline CPI.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>South African Inflation Calculator</h1>
+    <p class="intro">See what a rand amount from one month is worth in another, using Stats SA headline CPI.</p>
+
+    <form id="calculator" novalidate>
+      <label>
+        Amount (R)
+        <input id="amount" type="number" min="0" step="0.01" value="100" inputmode="decimal" required>
+      </label>
+      <label>
+        Start month
+        <input id="start-month" type="month" required>
+      </label>
+      <label>
+        End month
+        <input id="end-month" type="month" required>
+      </label>
+    </form>
+
+    <section id="result" aria-live="polite">
+      <p class="loading">Loading CPI data…</p>
+    </section>
+
+    <footer id="data-info"></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
